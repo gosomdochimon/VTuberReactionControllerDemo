@@ -1,0 +1,23 @@
+# Track only the Unity scripts and local tools needed for this demo.
+
+# Ignore every root-level item by default.
+/*
+
+# Keep this ignore contract visible in Git.
+!/.gitignore
+
+# Keep Unity script sources.
+!/Assets/
+/Assets/*
+!/Assets/Scripts.meta
+!/Assets/Scripts/
+!/Assets/Scripts/**
+
+# Keep local helper tools.
+!/Tools/
+!/Tools/**
+
+# Do not track generated Python cache files inside Tools.
+/Tools/**/__pycache__/
+/Tools/**/*.py[cod]
+/Tools/**/*.pyo
