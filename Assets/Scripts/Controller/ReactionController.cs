@@ -11,24 +11,40 @@ namespace VTuberReactionControllerDemo.Controller
         [Header("Queue")]
         [SerializeField, Min(0f)] private float reactionIntervalSeconds = 0.75f;
 
+        [Header("Reaction Definitions")]
+        [SerializeField] private ReactionDefinition[] reactionDefinitions = Array.Empty<ReactionDefinition>();
+
         [Header("VFX")]
         [SerializeField] private Transform vfxSpawnPoint;
-        [SerializeField] private ReactionVfxBinding[] vfxBindings = Array.Empty<ReactionVfxBinding>();
         [SerializeField] private float fallbackVfxLifetimeSeconds = 4f;
 
         [Header("Expression")]
         [SerializeField] private VRMBlendShapeProxy expressionProxy;
-        [SerializeField] private ReactionExpressionBinding[] expressionBindings = Array.Empty<ReactionExpressionBinding>();
         [SerializeField, Range(0f, 1f)] private float expressionWeight = 1f;
         [SerializeField, Min(0f)] private float expressionHoldSeconds = 1.25f;
+
+        [Header("Special Reactions")]
+        [SerializeField] private ThrowReactionPlayer throwReactionPlayer;
 
         private readonly Queue<ReactionEvent> pendingReactions = new Queue<ReactionEvent>();
         private Coroutine processQueueCoroutine;
         private BlendShapeKey activeExpressionKey;
         private bool hasActiveExpression;
 
+        public event Action<ReactionEvent> ReactionStarted;
+
         public int PendingReactionCount => pendingReactions.Count;
         public bool IsProcessing => processQueueCoroutine != null;
+
+        private void Awake()
+        {
+            EnsureInitialized();
+        }
+
+        private void Reset()
+        {
+            EnsureInitialized();
+        }
 
         public void Enqueue(ReactionEvent reactionEvent)
         {
@@ -43,7 +59,16 @@ namespace VTuberReactionControllerDemo.Controller
 
         private void OnEnable()
         {
+            EnsureInitialized();
             TryStartProcessingQueue();
+        }
+
+        private void EnsureInitialized()
+        {
+            if (throwReactionPlayer == null)
+            {
+                throwReactionPlayer = GetComponent<ThrowReactionPlayer>();
+            }
         }
 
         private void OnDisable()
@@ -96,16 +121,23 @@ namespace VTuberReactionControllerDemo.Controller
 
         private IEnumerator PlayReaction(ReactionEvent reactionEvent)
         {
-            PlayVfx(reactionEvent.Type);
+            ReactionDefinition definition = FindReactionDefinition(reactionEvent.Type);
+
+            ReactionStarted?.Invoke(reactionEvent);
+            PlayVfx(definition);
             WriteLog(reactionEvent.Message);
 
-            ReactionExpressionBinding binding = FindExpressionBinding(reactionEvent.Type);
-            if (binding == null || expressionProxy == null || !binding.HasExpressionKey)
+            if (ShouldPlayThrowReaction(definition) && throwReactionPlayer != null)
+            {
+                yield return throwReactionPlayer.Play();
+            }
+
+            if (!TryGetExpressionKey(definition, out BlendShapeKey expressionKey) || expressionProxy == null)
             {
                 yield break;
             }
 
-            ApplyExpression(binding, expressionWeight);
+            ApplyExpression(expressionKey, expressionWeight);
 
             if (expressionHoldSeconds > 0f)
             {
@@ -115,79 +147,95 @@ namespace VTuberReactionControllerDemo.Controller
             ResetActiveExpression();
         }
 
-        private void PlayVfx(string reactionType)
+        private void PlayVfx(ReactionDefinition definition)
         {
-            ReactionVfxBinding binding = FindVfxBinding(reactionType);
-            if (binding == null || binding.Prefab == null)
+            if (definition == null || !definition.HasVfxPrefab)
+            {
+                return;
+            }
+
+            PlayVfx(
+                definition.VfxPrefab,
+                definition.VfxLocalOffset,
+                definition.VfxLifetimeSeconds,
+                definition.ParentVfxToSpawnPoint);
+        }
+
+        private void PlayVfx(GameObject prefab, Vector3 localOffset, float configuredLifetimeSeconds, bool parentToSpawnPoint)
+        {
+            if (prefab == null)
             {
                 return;
             }
 
             Transform spawnPoint = vfxSpawnPoint != null ? vfxSpawnPoint : transform;
-            Vector3 spawnPosition = spawnPoint.TransformPoint(binding.LocalOffset);
+            Vector3 spawnPosition = spawnPoint.TransformPoint(localOffset);
             Quaternion spawnRotation = spawnPoint.rotation;
-            GameObject vfxInstance = Instantiate(binding.Prefab, spawnPosition, spawnRotation);
+            GameObject vfxInstance = Instantiate(prefab, spawnPosition, spawnRotation);
 
-            if (binding.ParentToSpawnPoint)
+            if (parentToSpawnPoint)
             {
                 vfxInstance.transform.SetParent(spawnPoint, true);
             }
 
-            float lifetimeSeconds = binding.LifetimeSeconds > 0f
-                ? binding.LifetimeSeconds
+            float lifetimeSeconds = configuredLifetimeSeconds > 0f
+                ? configuredLifetimeSeconds
                 : fallbackVfxLifetimeSeconds;
 
             Destroy(vfxInstance, lifetimeSeconds);
         }
 
-        private ReactionVfxBinding FindVfxBinding(string reactionType)
+        private ReactionDefinition FindReactionDefinition(string reactionType)
         {
             if (string.IsNullOrWhiteSpace(reactionType))
             {
                 return null;
             }
 
-            for (int i = 0; i < vfxBindings.Length; i++)
-            {
-                ReactionVfxBinding binding = vfxBindings[i];
-                if (binding != null && binding.Matches(reactionType))
-                {
-                    return binding;
-                }
-            }
-
-            return null;
-        }
-
-        private ReactionExpressionBinding FindExpressionBinding(string reactionType)
-        {
-            if (string.IsNullOrWhiteSpace(reactionType))
+            if (reactionDefinitions == null)
             {
                 return null;
             }
 
-            for (int i = 0; i < expressionBindings.Length; i++)
+            for (int i = 0; i < reactionDefinitions.Length; i++)
             {
-                ReactionExpressionBinding binding = expressionBindings[i];
-                if (binding != null && binding.Matches(reactionType))
+                ReactionDefinition definition = reactionDefinitions[i];
+                if (definition != null && definition.Matches(reactionType))
                 {
-                    return binding;
+                    return definition;
                 }
             }
 
             return null;
         }
 
-        private void ApplyExpression(ReactionExpressionBinding binding, float weight)
+        private static bool TryGetExpressionKey(ReactionDefinition definition, out BlendShapeKey expressionKey)
         {
-            if (expressionProxy == null || binding == null || !binding.HasExpressionKey)
+            if (definition != null && definition.HasExpressionKey)
+            {
+                expressionKey = definition.CreateExpressionKey();
+                return true;
+            }
+
+            expressionKey = default;
+            return false;
+        }
+
+        private static bool ShouldPlayThrowReaction(ReactionDefinition definition)
+        {
+            return definition != null && definition.PlaysThrowReaction;
+        }
+
+        private void ApplyExpression(BlendShapeKey expressionKey, float weight)
+        {
+            if (expressionProxy == null)
             {
                 return;
             }
 
             ResetActiveExpression();
 
-            activeExpressionKey = binding.CreateKey();
+            activeExpressionKey = expressionKey;
             hasActiveExpression = true;
             expressionProxy.ImmediatelySetValue(activeExpressionKey, Mathf.Clamp01(weight));
         }
@@ -209,56 +257,5 @@ namespace VTuberReactionControllerDemo.Controller
             Debug.Log(text);
         }
 
-        [Serializable]
-        private sealed class ReactionVfxBinding
-        {
-            [SerializeField] private string type;
-            [SerializeField] private GameObject prefab;
-            [SerializeField] private Vector3 localOffset;
-            [SerializeField] private float lifetimeSeconds = 4f;
-            [SerializeField] private bool parentToSpawnPoint;
-
-            public GameObject Prefab => prefab;
-            public Vector3 LocalOffset => localOffset;
-            public float LifetimeSeconds => lifetimeSeconds;
-            public bool ParentToSpawnPoint => parentToSpawnPoint;
-
-            public bool Matches(string reactionType)
-            {
-                return string.Equals(type, reactionType, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
-        [Serializable]
-        private sealed class ReactionExpressionBinding
-        {
-            [SerializeField] private string type;
-            [SerializeField] private ExpressionKeyMode keyMode = ExpressionKeyMode.Preset;
-            [SerializeField] private BlendShapePreset preset = BlendShapePreset.Joy;
-            [SerializeField] private string customName;
-
-            public bool HasExpressionKey => keyMode == ExpressionKeyMode.Preset || !string.IsNullOrWhiteSpace(customName);
-
-            public BlendShapeKey CreateKey()
-            {
-                if (keyMode == ExpressionKeyMode.CustomName)
-                {
-                    return BlendShapeKey.CreateUnknown(customName);
-                }
-
-                return BlendShapeKey.CreateFromPreset(preset);
-            }
-
-            public bool Matches(string reactionType)
-            {
-                return string.Equals(type, reactionType, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
-        private enum ExpressionKeyMode
-        {
-            Preset,
-            CustomName
-        }
     }
 }

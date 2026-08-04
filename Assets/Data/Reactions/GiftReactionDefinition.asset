@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d27f91911a446e43acb8584790eaf2c, type: 3}
+  m_Name: GiftReactionDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionDefinition
+  type: gift
+  displayName: Gift
+  description: Keyboard/UDP gift reaction data.
+  vfxPrefab: {fileID: 8791802859087666345, guid: ae07f2a45f14a82428409cfe410e6002, type: 3}
+  vfxLocalOffset: {x: 0, y: 0.35, z: 0}
+  vfxLifetimeSeconds: 4
+  parentVfxToSpawnPoint: 0
+  expressionKeyMode: 0
+  expressionPreset: 11
+  customExpressionName: 
+  playThrowReaction: 0

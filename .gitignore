@@ -1,23 +1,72 @@
-# Track only the Unity scripts and local tools needed for this demo.
+# Unity generated folders.
+/Library/
+/Temp/
+/Obj/
+/obj/
+/Build/
+/Builds/
+/Logs/
+/UserSettings/
+/MemoryCaptures/
 
-# Ignore every root-level item by default.
-/*
+# IDE and generated C# project files.
+/.vs/
+/.vscode/
+/.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
 
-# Keep this ignore contract visible in Git.
-!/.gitignore
+# Local agent/runtime state.
+/.agents/
+/.codex/
+/.omx/
+/.survey/
+/mdfiles/
 
-# Keep Unity script sources.
-!/Assets/
-/Assets/*
-!/Assets/Scripts.meta
-!/Assets/Scripts/
-!/Assets/Scripts/**
+# Local working docs are not ready for repository upload yet.
+/Docs/
 
-# Keep local helper tools.
-!/Tools/
-!/Tools/**
+# Large demo assets that are not required in this Git snapshot.
+/Assets/ExternalAssets/
+/Assets/ExternalAssets.meta
+/Assets/JMO Assets/
+/Assets/JMO Assets.meta
+/Assets/TutorialInfo/
+/Assets/TutorialInfo.meta
 
-# Do not track generated Python cache files inside Tools.
+# Local/generated Unity MCP and NuGet plugin payloads.
+# Keep Packages/manifest.json as the reproducible dependency source.
+/Assets/Plugins/NuGet/
+/Assets/Plugins/NuGet.meta
+/Assets/Plugins.meta
+/Assets/packages-merged-link/
+/Assets/packages-merged-link.meta
+
+# Build-time generated Performance Testing resources.
+/Assets/Resources/PerformanceTestRunInfo.json
+/Assets/Resources/PerformanceTestRunInfo.json.meta
+/Assets/Resources/PerformanceTestRunSettings.json
+/Assets/Resources/PerformanceTestRunSettings.json.meta
+
+# Python generated files inside local tools.
 /Tools/**/__pycache__/
 /Tools/**/*.py[cod]
 /Tools/**/*.pyo
+
+# OS files.
+.DS_Store
+Thumbs.db
+Desktop.ini

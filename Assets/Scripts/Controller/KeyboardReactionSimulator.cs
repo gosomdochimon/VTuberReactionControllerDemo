@@ -6,12 +6,17 @@ namespace VTuberReactionControllerDemo.Controller
     public sealed class KeyboardReactionSimulator : MonoBehaviour
     {
         [SerializeField] private ReactionController controller;
-
-        private KeyBinding[] bindings;
+        [SerializeField] private ReactionCatalog catalog;
 
         private void Awake()
         {
             EnsureInitialized();
+        }
+
+        private void Reset()
+        {
+            controller = GetComponent<ReactionController>();
+            catalog = GetComponent<ReactionCatalog>();
         }
 
         private void OnEnable()
@@ -29,17 +34,23 @@ namespace VTuberReactionControllerDemo.Controller
             EnsureInitialized();
 
             Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || controller == null)
+            if (keyboard == null || controller == null || catalog == null)
             {
                 return;
             }
 
-            for (int i = 0; i < bindings.Length; i++)
+            var items = catalog.GetCurrentItems();
+            for (int i = 0; i < items.Count; i++)
             {
-                KeyBinding binding = bindings[i];
-                if (keyboard[binding.Key].wasPressedThisFrame)
+                ReactionCatalog.ReactionMenuItem item = items[i];
+                if (item == null || !item.IsValid)
                 {
-                    controller.Enqueue(binding.ReactionEvent);
+                    continue;
+                }
+
+                if (keyboard[item.Key].wasPressedThisFrame)
+                {
+                    controller.Enqueue(item.CreateReactionEvent());
                 }
             }
         }
@@ -51,53 +62,10 @@ namespace VTuberReactionControllerDemo.Controller
                 controller = GetComponent<ReactionController>();
             }
 
-            if (bindings != null)
+            if (catalog == null)
             {
-                return;
+                catalog = GetComponent<ReactionCatalog>();
             }
-
-            bindings = new[]
-            {
-                new KeyBinding(
-                    Key.Digit1,
-                    new ReactionEvent
-                    {
-                        Type = "cheer",
-                        User = "ViewerA",
-                        Amount = 1000,
-                        Message = "Key 1 pressed: cheer reaction test."
-                    }),
-                new KeyBinding(
-                    Key.Digit2,
-                    new ReactionEvent
-                    {
-                        Type = "shock",
-                        User = "ViewerB",
-                        Amount = 0,
-                        Message = "Key 2 pressed: shock reaction test."
-                    }),
-                new KeyBinding(
-                    Key.Digit3,
-                    new ReactionEvent
-                    {
-                        Type = "gift",
-                        User = "ViewerC",
-                        Amount = 5000,
-                        Message = "Key 3 pressed: gift reaction test."
-                    })
-            };
-        }
-
-        private readonly struct KeyBinding
-        {
-            public KeyBinding(Key key, ReactionEvent reactionEvent)
-            {
-                Key = key;
-                ReactionEvent = reactionEvent;
-            }
-
-            public Key Key { get; }
-            public ReactionEvent ReactionEvent { get; }
         }
     }
 }
