@@ -38,8 +38,13 @@
 
 # Local working docs are not ready for repository upload yet.
 /Docs/
+# Keep the README-linked QA feature capture available in repository checkouts.
+/Docs/*
+!/Docs/
+!/Docs/VTuberReactionControllerDemo_QA_FeatureDemo.gif
 
 # Large demo assets that are not required in this Git snapshot.
+/QA/
 /Assets/ExternalAssets/
 /Assets/ExternalAssets.meta
 /Assets/JMO Assets/

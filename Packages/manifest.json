@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.iam1337.extosc": "file:com.iam1337.extosc",
     "com.ivanmurzak.unity.mcp": "0.87.0",
     "com.unity.ai.navigation": "2.0.14",
     "com.unity.collab-proxy": "2.13.3",

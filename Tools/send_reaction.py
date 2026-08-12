@@ -8,6 +8,19 @@ import json
 import socket
 import time
 
+DEFAULT_AMOUNT = 1000
+DEFAULT_MESSAGE = "event from python"
+DEFAULT_BROADCAST_SOURCE = "soop-scon"
+
+BROADCAST_REACTION_PAYLOADS = {
+    "cheer": ("support", "cheer", 1000, "ㅋㅋ SOOP/SCON cheer reaction test"),
+    "shock": ("support", "shock", 1000, "놀람! SOOP/SCON shock reaction test"),
+    "gift": ("support", "gift", 5000, "SOOP/SCON gift reaction test"),
+    "throw": ("support", "throw", 3000, "!throw SOOP/SCON throw reaction test"),
+    "spark": ("support", "spark", 10000, "SOOP/SCON spark reaction test"),
+    "bonk": ("support", "bonk", 3000, "SOOP/SCON bonk motion reaction test"),
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -20,11 +33,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Reaction type matched by Unity, such as cheer, shock, or gift.",
     )
     parser.add_argument("--user", default="LocalTester", help="Event sender name.")
-    parser.add_argument("--amount", type=int, default=1000, help="Numeric event value.")
+    parser.add_argument("--amount", type=int, default=DEFAULT_AMOUNT, help="Numeric event value.")
     parser.add_argument(
         "--message",
-        default="event from python",
+        default=DEFAULT_MESSAGE,
         help="Message shown by the Unity reaction log.",
+    )
+    parser.add_argument(
+        "--source",
+        default=DEFAULT_BROADCAST_SOURCE,
+        help="Broadcast source name for broadcast payloads.",
+    )
+    parser.add_argument(
+        "--payload-style",
+        choices=("standard", "external", "broadcast"),
+        default="standard",
+        help="JSON field naming style to send. broadcast uses source/eventKind/selectedReaction/displayName/amount/message.",
     )
     parser.add_argument("--host", default="127.0.0.1", help="Unity receiver host.")
     parser.add_argument("--port", type=int, default=9000, help="Unity receiver UDP port.")
@@ -39,6 +63,31 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def create_payload(args: argparse.Namespace) -> dict[str, object]:
+    if args.payload_style == "broadcast":
+        reaction_key = args.reaction_type.lower()
+        event_kind, selected_reaction, default_amount, default_message = BROADCAST_REACTION_PAYLOADS.get(
+            reaction_key,
+            ("support", args.reaction_type, args.amount, args.message),
+        )
+        amount = default_amount if args.amount == DEFAULT_AMOUNT else args.amount
+        message = default_message if args.message == DEFAULT_MESSAGE else args.message
+        return {
+            "source": args.source,
+            "eventKind": event_kind,
+            "selectedReaction": selected_reaction,
+            "displayName": args.user,
+            "amount": amount,
+            "message": message,
+        }
+
+    if args.payload_style == "external":
+        return {
+            "type": args.reaction_type,
+            "displayName": args.user,
+            "amount": args.amount,
+            "comment": args.message,
+        }
+
     return {
         "Type": args.reaction_type,
         "User": args.user,

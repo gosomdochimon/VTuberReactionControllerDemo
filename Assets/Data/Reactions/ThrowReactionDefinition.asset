@@ -22,4 +22,5 @@ MonoBehaviour:
   expressionKeyMode: 1
   expressionPreset: 0
   customExpressionName: Surprised
+  expressionTiming: 1
   playThrowReaction: 1

@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebSocket Reaction Tester</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+
+    section {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid #d7dee8;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      border: 1px solid #b9c3d1;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #ffffff;
+      padding: 9px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #ffffff;
+      color: #1f2937;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .status {
+      display: inline-block;
+      min-width: 110px;
+      font-weight: 700;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .preset-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid #d7dee8;
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .preset-row strong {
+      color: #111827;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      color: #111827;
+    }
+
+    pre {
+      min-height: 180px;
+      max-height: 360px;
+      overflow: auto;
+      margin: 0;
+      padding: 14px;
+      border-radius: 6px;
+      background: #111827;
+      color: #e5e7eb;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>WebSocket Reaction Tester</h1>
+    <p>Unity Play Mode를 켠 뒤 연결하고 JSON을 보내면 Unity Console과 아래 로그에서 결과를 확인할 수 있습니다.</p>
+
+    <section>
+      <label for="urlInput">WebSocket URL</label>
+      <input id="urlInput" value="ws://127.0.0.1:9001/reaction/">
+      <div class="row" style="margin-top: 12px;">
+        <button id="connectButton">Connect</button>
+        <button id="disconnectButton" class="secondary" disabled>Disconnect</button>
+        <span class="status" id="statusText">Disconnected</span>
+      </div>
+    </section>
+
+    <section>
+      <label for="messageInput">JSON Message</label>
+      <div style="margin-bottom: 12px;">
+        <label for="payloadStyleInput">Payload Style</label>
+        <select id="payloadStyleInput">
+          <option value="standard">Standard: Type / User / Amount / Message</option>
+          <option value="external">External: type / displayName / amount / comment</option>
+          <option value="broadcast">Broadcast: source / eventKind / selectedReaction / displayName / amount / message</option>
+        </select>
+      </div>
+      <div class="hint" id="payloadStyleDescription"></div>
+      <div class="preset-list" id="broadcastPresetList" hidden>
+        <div class="preset-row">
+          <strong>Cheer</strong>
+          <span><code>selectedReaction=cheer</code>, <code>amount=1000</code>, SOOP/SCON 응원 리액션 후보</span>
+        </div>
+        <div class="preset-row">
+          <strong>Shock</strong>
+          <span><code>selectedReaction=shock</code>, <code>amount=1000</code>, 놀람 리액션 후보</span>
+        </div>
+        <div class="preset-row">
+          <strong>Gift</strong>
+          <span><code>selectedReaction=gift</code>, <code>amount=5000</code>, 선물 리액션 후보</span>
+        </div>
+        <div class="preset-row">
+          <strong>Throw</strong>
+          <span><code>selectedReaction=throw</code>, <code>amount=3000</code>, 투척 리액션 후보</span>
+        </div>
+        <div class="preset-row">
+          <strong>Spark</strong>
+          <span><code>selectedReaction=spark</code>, <code>amount=10000</code>, 스파크 리액션 후보</span>
+        </div>
+        <div class="preset-row">
+          <strong>Bonk</strong>
+          <span><code>selectedReaction=bonk</code>, <code>amount=3000</code>, 타격형 머리 움직임 후보</span>
+        </div>
+      </div>
+      <textarea id="messageInput">{
+  "Type": "cheer",
+  "User": "BrowserTester",
+  "Amount": 1000,
+  "Message": "sent from websocket tester"
+}</textarea>
+      <div class="row" style="margin-top: 12px;">
+        <button data-reaction="cheer">Cheer</button>
+        <button data-reaction="shock">Shock</button>
+        <button data-reaction="gift">Gift</button>
+        <button data-reaction="throw">Throw</button>
+        <button data-reaction="spark">Spark</button>
+        <button data-reaction="bonk">Bonk</button>
+        <button id="sendButton" class="secondary" disabled>Send JSON</button>
+      </div>
+    </section>
+
+    <section>
+      <label>Log</label>
+      <pre id="logOutput"></pre>
+    </section>
+  </main>
+
+  <script>
+    const urlInput = document.getElementById("urlInput");
+    const payloadStyleInput = document.getElementById("payloadStyleInput");
+    const messageInput = document.getElementById("messageInput");
+    const connectButton = document.getElementById("connectButton");
+    const disconnectButton = document.getElementById("disconnectButton");
+    const sendButton = document.getElementById("sendButton");
+    const statusText = document.getElementById("statusText");
+    const logOutput = document.getElementById("logOutput");
+    const payloadStyleDescription = document.getElementById("payloadStyleDescription");
+    const broadcastPresetList = document.getElementById("broadcastPresetList");
+    let socket = null;
+
+    const broadcastByType = {
+      cheer: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "cheer",
+        amount: 1000,
+        message: "ㅋㅋ SOOP/SCON cheer reaction test"
+      },
+      shock: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "shock",
+        amount: 1000,
+        message: "놀람! SOOP/SCON shock reaction test"
+      },
+      gift: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "gift",
+        amount: 5000,
+        message: "SOOP/SCON gift reaction test"
+      },
+      throw: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "throw",
+        amount: 3000,
+        message: "!throw SOOP/SCON throw reaction test"
+      },
+      spark: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "spark",
+        amount: 10000,
+        message: "SOOP/SCON spark reaction test"
+      },
+      bonk: {
+        source: "soop-scon",
+        eventKind: "support",
+        selectedReaction: "bonk",
+        amount: 3000,
+        message: "SOOP/SCON bonk motion reaction test"
+      }
+    };
+
+    function log(message) {
+      const time = new Date().toLocaleTimeString();
+      logOutput.textContent += `[${time}] ${message}\n`;
+      logOutput.scrollTop = logOutput.scrollHeight;
+    }
+
+    function setConnected(connected) {
+      statusText.textContent = connected ? "Connected" : "Disconnected";
+      connectButton.disabled = connected;
+      disconnectButton.disabled = !connected;
+      sendButton.disabled = !connected;
+    }
+
+    function connect() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        return;
+      }
+
+      const url = urlInput.value.trim();
+      log(`connecting: ${url}`);
+      socket = new WebSocket(url);
+
+      socket.onopen = () => {
+        setConnected(true);
+        log("connected");
+      };
+
+      socket.onmessage = (event) => {
+        log(`received from Unity: ${event.data}`);
+      };
+
+      socket.onerror = () => {
+        log("error: connection failed or interrupted");
+      };
+
+      socket.onclose = (event) => {
+        setConnected(false);
+        log(`closed: code=${event.code}, reason=${event.reason || "(none)"}`);
+      };
+    }
+
+    function disconnect() {
+      if (!socket) {
+        return;
+      }
+
+      socket.close();
+      socket = null;
+      setConnected(false);
+    }
+
+    function sendCurrentJson() {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        log("send failed: not connected");
+        return;
+      }
+
+      const message = messageInput.value.trim();
+      try {
+        JSON.parse(message);
+      } catch (error) {
+        log(`send failed: invalid JSON: ${error.message}`);
+        return;
+      }
+
+      socket.send(message);
+      log(`sent: ${message}`);
+    }
+
+    function setReaction(type) {
+      const amountByType = {
+        cheer: 1000,
+        shock: 0,
+        gift: 5000,
+        throw: 1,
+        spark: 1500,
+        bonk: 3000
+      };
+      const amount = amountByType[type] ?? 1000;
+      const payload = payloadStyleInput.value === "broadcast"
+        ? {
+            source: broadcastByType[type]?.source ?? "soop-scon",
+            eventKind: broadcastByType[type]?.eventKind ?? "support",
+            selectedReaction: broadcastByType[type]?.selectedReaction ?? type,
+            displayName: "BrowserTester",
+            amount: broadcastByType[type]?.amount ?? amount,
+            message: broadcastByType[type]?.message ?? `broadcast ${type} from websocket tester`
+          }
+        : payloadStyleInput.value === "external"
+        ? {
+            type,
+            displayName: "BrowserTester",
+            amount,
+            comment: `sent ${type} from websocket tester`
+          }
+        : {
+            Type: type,
+            User: "BrowserTester",
+            Amount: amount,
+            Message: `sent ${type} from websocket tester`
+          };
+
+      messageInput.value = JSON.stringify(payload, null, 2);
+      sendCurrentJson();
+    }
+
+    function updatePayloadStyleDescription() {
+      const style = payloadStyleInput.value;
+      broadcastPresetList.hidden = style !== "broadcast";
+
+      if (style === "broadcast") {
+        payloadStyleDescription.textContent = "SOOP/SCON 후보 payload입니다. 버튼은 source=soop-scon, eventKind=support, selectedReaction 우선 규칙을 테스트합니다.";
+        return;
+      }
+
+      if (style === "external") {
+        payloadStyleDescription.textContent = "외부 API처럼 필드 이름만 다른 직접 반응 payload입니다. BroadcastReactionMapper를 거치지 않고 ReactionEvent로 변환됩니다.";
+        return;
+      }
+
+      payloadStyleDescription.textContent = "프로젝트 내부 표준 ReactionEvent에 가까운 기본 payload입니다.";
+    }
+
+    connectButton.addEventListener("click", connect);
+    disconnectButton.addEventListener("click", disconnect);
+    sendButton.addEventListener("click", sendCurrentJson);
+    payloadStyleInput.addEventListener("change", updatePayloadStyleDescription);
+    document.querySelectorAll("[data-reaction]").forEach((button) => {
+      button.addEventListener("click", () => setReaction(button.dataset.reaction));
+    });
+
+    setConnected(false);
+    updatePayloadStyleDescription();
+  </script>
+</body>
+</html>

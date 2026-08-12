@@ -834,25 +834,25 @@ PlayerSettings:
   webWasm2023: 1
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: UNITY_MCP_READY
-    EmbeddedLinux: UNITY_MCP_READY
-    GameCoreScarlett: UNITY_MCP_READY
-    GameCoreXboxOne: UNITY_MCP_READY
-    Kepler: UNITY_MCP_READY
-    LinuxHeadlessSimulation: UNITY_MCP_READY
-    Nintendo Switch: UNITY_MCP_READY
-    Nintendo Switch 2: UNITY_MCP_READY
-    PS4: UNITY_MCP_READY
-    PS5: UNITY_MCP_READY
-    QNX: UNITY_MCP_READY
+    Android: UNITY_MCP_READY;EXTOSC
+    EmbeddedLinux: UNITY_MCP_READY;EXTOSC
+    GameCoreScarlett: UNITY_MCP_READY;EXTOSC
+    GameCoreXboxOne: UNITY_MCP_READY;EXTOSC
+    Kepler: UNITY_MCP_READY;EXTOSC
+    LinuxHeadlessSimulation: UNITY_MCP_READY;EXTOSC
+    Nintendo Switch: UNITY_MCP_READY;EXTOSC
+    Nintendo Switch 2: UNITY_MCP_READY;EXTOSC
+    PS4: UNITY_MCP_READY;EXTOSC
+    PS5: UNITY_MCP_READY;EXTOSC
+    QNX: UNITY_MCP_READY;EXTOSC
     Server: UNITY_MCP_READY
-    Standalone: UNITY_MCP_READY
-    VisionOS: UNITY_MCP_READY
-    WebGL: UNITY_MCP_READY
+    Standalone: UNITY_MCP_READY;EXTOSC
+    VisionOS: UNITY_MCP_READY;EXTOSC
+    WebGL: UNITY_MCP_READY;EXTOSC
     Windows Store Apps: UNITY_MCP_READY
-    XboxOne: UNITY_MCP_READY
+    XboxOne: UNITY_MCP_READY;EXTOSC
     iPhone: UNITY_MCP_READY
-    tvOS: UNITY_MCP_READY
+    tvOS: UNITY_MCP_READY;EXTOSC
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

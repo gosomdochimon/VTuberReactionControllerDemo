@@ -159,7 +159,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -24, y: 0}
-  m_SizeDelta: {x: 520, y: 126.92505}
+  m_SizeDelta: {x: 520, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &36202480
 MonoBehaviour:
@@ -239,6 +239,88 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 36202478}
   m_CullTransparentMesh: 1
+--- !u!1 &50695628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 50695632}
+  - component: {fileID: 50695631}
+  - component: {fileID: 50695630}
+  - component: {fileID: 50695629}
+  m_Layer: 0
+  m_Name: ReactionHUDObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &50695629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50695628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53da36f8b1f046148b1876952b9dda78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionHudPresenter
+  listPresenter: {fileID: 50695631}
+  logPresenter: {fileID: 50695630}
+--- !u!114 &50695630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50695628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 024a59b376709db4eb9ae655a500b410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionLogPresenter
+  controller: {fileID: 257058576}
+  targetCanvas: {fileID: 733638075}
+  latestText: {fileID: 555524843}
+  historyText: {fileID: 1832909281}
+  maxEntries: 6
+  currencySuffix: "\uC6D0"
+--- !u!114 &50695631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50695628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56f561d4c4c4a2a449da6a0325662181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionListPresenter
+  catalog: {fileID: 257058584}
+  targetCanvas: {fileID: 733638075}
+  listText: {fileID: 1262268025}
+  currencySuffix: "\uC6D0"
+--- !u!4 &50695632
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50695628}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &257058575
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,13 +331,9 @@ GameObject:
   m_Component:
   - component: {fileID: 257058577}
   - component: {fileID: 257058576}
-  - component: {fileID: 257058578}
-  - component: {fileID: 257058579}
   - component: {fileID: 257058580}
-  - component: {fileID: 257058581}
-  - component: {fileID: 257058582}
   - component: {fileID: 257058584}
-  - component: {fileID: 257058583}
+  - component: {fileID: 257058585}
   m_Layer: 0
   m_Name: ControllerObject
   m_TagString: Untagged
@@ -282,12 +360,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: de230e7720ca79a4d8ca75fb0f29826d, type: 2}
   - {fileID: 11400000, guid: b9630318b539ed1449fff9f23c20deac, type: 2}
   - {fileID: 11400000, guid: 4a6cc76156ff56a45b6f85651d7bd162, type: 2}
+  - {fileID: 11400000, guid: 6f40b8c7ad1b4f589fc6a8f7e5ac4d12, type: 2}
   vfxSpawnPoint: {fileID: 564336629}
   fallbackVfxLifetimeSeconds: 4
   expressionProxy: {fileID: 1601872191}
   expressionWeight: 1
   expressionHoldSeconds: 1.25
   throwReactionPlayer: {fileID: 257058580}
+  motionReactionPlayer: {fileID: 257058585}
 --- !u!4 &257058577
 Transform:
   m_ObjectHideFlags: 0
@@ -303,39 +383,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &257058578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 257058575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 909333813a1327a4caf111237a25c78e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.KeyboardReactionSimulator
-  controller: {fileID: 257058576}
-  catalog: {fileID: 257058584}
---- !u!114 &257058579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 257058575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f1c7bace8504a4c9fc153aa18bfe071, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.UdpJsonEventReceiver
-  controller: {fileID: 257058576}
-  bindAddress: 0.0.0.0
-  port: 9000
-  startOnEnable: 1
-  maxMessagesPerFrame: 16
-  logReceivedPackets: 1
-  logEnqueuedReactions: 1
 --- !u!114 &257058580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,7 +416,7 @@ MonoBehaviour:
   shakeDistance: 0.08
   shakeSeconds: 0.18
   hitShakeDirection: {x: 0, y: 0, z: -1}
---- !u!114 &257058581
+--- !u!114 &257058585
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -378,45 +425,55 @@ MonoBehaviour:
   m_GameObject: {fileID: 257058575}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 024a59b376709db4eb9ae655a500b410, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f6612b07e2c4c05bfaeb2d261d39019, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionLogPresenter
-  controller: {fileID: 257058576}
-  targetCanvas: {fileID: 733638075}
-  latestText: {fileID: 555524843}
-  historyText: {fileID: 1832909281}
-  maxEntries: 6
-  currencySuffix: "\uC6D0"
---- !u!114 &257058582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 257058575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56f561d4c4c4a2a449da6a0325662181, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionListPresenter
-  catalog: {fileID: 257058584}
-  targetCanvas: {fileID: 733638075}
-  listText: {fileID: 1262268025}
-  currencySuffix: "\uC6D0"
---- !u!114 &257058583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 257058575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53da36f8b1f046148b1876952b9dda78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionHudPresenter
-  listPresenter: {fileID: 257058582}
-  logPresenter: {fileID: 257058581}
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionMotionPlayer
+  targetAnimator: {fileID: 1601872192}
+  autoBindHumanoidBones: 1
+  head: {fileID: 0}
+  neck: {fileID: 0}
+  chest: {fileID: 0}
+  headImpactEuler: {x: 24, y: 0, z: 0}
+  neckImpactEuler: {x: 10, y: 0, z: 0}
+  chestImpactEuler: {x: 4, y: 0, z: 0}
+  impactSeconds: 0.24
+  impactCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 3.5714285
+      outSlope: 3.5714285
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.28
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -1.3888888
+      outSlope: -1.3888888
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  springStrength: 90
+  damping: 16
+  maxSettleSeconds: 0.7
+  settleThreshold: 0.0025
 --- !u!114 &257058584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,6 +522,13 @@ MonoBehaviour:
       User: Visitor04
       Amount: 1500
       Message: 'Visitor04 donated 1,500 won: spark reaction.'
+  - displayName: 6 Bonk
+    key: 46
+    reactionEvent:
+      Type: bonk
+      User: Visitor05
+      Amount: 3000
+      Message: 'Visitor05 triggered bonk motion reaction.'
 --- !u!1 &267605523
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,10 +562,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 464169627}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -18}
-  m_SizeDelta: {x: 376, y: 23.050638}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &267605525
 MonoBehaviour:
@@ -893,6 +957,62 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &433736626
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 433736628}
+  - component: {fileID: 433736627}
+  m_Layer: 0
+  m_Name: ReactionSystemRootObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &433736627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433736626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0607f34ed0d3e949a76b5e62e255cc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.ReactionSystemRoot
+  controller: {fileID: 257058576}
+  catalog: {fileID: 257058584}
+  keyboardSimulator: {fileID: 2087166370}
+  udpReceiver: {fileID: 2087166369}
+  webSocketReceiver: {fileID: 2087166372}
+  oscReceiver: {fileID: 2087166374}
+  listPresenter: {fileID: 50695631}
+  logPresenter: {fileID: 50695630}
+  hudPresenter: {fileID: 50695629}
+  configureOnAwake: 1
+  refreshHudOnStart: 1
+  logConfigurationStatus: 0
+--- !u!4 &433736628
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433736626}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &464169626
 GameObject:
   m_ObjectHideFlags: 0
@@ -932,7 +1052,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 24, y: 0}
-  m_SizeDelta: {x: 420, y: 90.32815}
+  m_SizeDelta: {x: 420, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &464169628
 MonoBehaviour:
@@ -1122,10 +1242,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 36202479}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -51.050636}
-  m_SizeDelta: {x: 476, y: 26.596891}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &555524843
 MonoBehaviour:
@@ -1503,10 +1623,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 36202479}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -18}
-  m_SizeDelta: {x: 476, y: 23.050638}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1208715465
 MonoBehaviour:
@@ -1603,10 +1723,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 464169627}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -51.050636}
-  m_SizeDelta: {x: 376, y: 21.277514}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1262268025
 MonoBehaviour:
@@ -1953,6 +2073,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b678c1df50cfb547990db24a32856da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: VRM::VRM.VRMBlendShapeProxy
+--- !u!95 &1601872192 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2681626953610333223, guid: fc5a0639372f42d4b8fd496c89f30a93, type: 3}
+  m_PrefabInstance: {fileID: 1601667032}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1832909279
 GameObject:
   m_ObjectHideFlags: 0
@@ -1986,10 +2111,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 36202479}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -87.64753}
-  m_SizeDelta: {x: 476, y: 21.277514}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1832909281
 MonoBehaviour:
@@ -2150,6 +2275,137 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!1 &2087166368
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2087166371}
+  - component: {fileID: 2087166370}
+  - component: {fileID: 2087166369}
+  - component: {fileID: 2087166372}
+  - component: {fileID: 2087166373}
+  - component: {fileID: 2087166374}
+  m_Layer: 0
+  m_Name: ReactionInputObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2087166369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1c7bace8504a4c9fc153aa18bfe071, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.UdpJsonEventReceiver
+  controller: {fileID: 257058576}
+  bindAddress: 0.0.0.0
+  port: 9000
+  startOnEnable: 1
+  maxMessagesPerFrame: 16
+  logReceivedPackets: 1
+  logEnqueuedReactions: 1
+--- !u!114 &2087166370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 909333813a1327a4caf111237a25c78e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.KeyboardReactionSimulator
+  controller: {fileID: 257058576}
+  catalog: {fileID: 257058584}
+--- !u!114 &2087166372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7e9f79b7484b34ab9fd7a6d0d0ec31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.WebSocketJsonEventReceiver
+  controller: {fileID: 257058576}
+  host: 127.0.0.1
+  port: 9001
+  path: /reaction/
+  startOnEnable: 1
+  maxMessagesPerFrame: 16
+  logReceivedPackets: 1
+  logEnqueuedReactions: 1
+  sendAcknowledgement: 1
+--- !u!114 &2087166373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbba286dc10e549b2bdec947ef8dbd3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: extOSC::extOSC.OSCReceiver
+  _autoConnect: 0
+  _closeOnPause: 0
+  _mapBundle: {fileID: 0}
+  _workInEditor: 0
+  _localHostMode: 0
+  _localHost: 
+  _localPort: 9002
+--- !u!114 &2087166374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bef0230dfddd1f45b9ced98827c14fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.OscReactionReceiver
+  controller: {fileID: 257058576}
+  receiver: {fileID: 2087166373}
+  addressMask: /reaction/*
+  localPort: 9002
+  startOnEnable: 1
+  maxMessagesPerFrame: 16
+  defaultUser: OSCViewer
+  defaultAmount: 0
+  logReceivedPackets: 1
+  logEnqueuedReactions: 1
+--- !u!4 &2087166371
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087166368}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!28 &2107000311
 Texture2D:
   m_ObjectHideFlags: 0
@@ -2253,3 +2509,6 @@ SceneRoots:
   - {fileID: 296078486}
   - {fileID: 1601667032}
   - {fileID: 733638076}
+  - {fileID: 433736628}
+  - {fileID: 2087166371}
+  - {fileID: 50695632}
