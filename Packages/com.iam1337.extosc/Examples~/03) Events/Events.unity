@@ -3455,7 +3455,7 @@ MonoBehaviour:
   _localHostMode: 0
   _localPortMode: 2
   _localReceiver: {fileID: 0}
-  _localHost: 10.0.1.48
+  _localHost: 127.0.0.1
   _localPort: 7000
   _remoteHost: 127.0.0.1
   _remotePort: 7000
@@ -3477,7 +3477,7 @@ MonoBehaviour:
   mapBundle: {fileID: 0}
   workInEditor: 0
   localHostMode: 0
-  localHost: 10.0.1.48
+  localHost: 127.0.0.1
   localPort: 7000
 --- !u!4 &2103238948
 Transform:

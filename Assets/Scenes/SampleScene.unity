@@ -2309,10 +2309,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VTuberReactionControllerDemo.Controller.UdpJsonEventReceiver
   controller: {fileID: 257058576}
-  bindAddress: 0.0.0.0
+  bindAddress: 127.0.0.1
   port: 9000
   startOnEnable: 1
   maxMessagesPerFrame: 16
+  maxPayloadBytes: 8192
+  maxPendingMessages: 128
+  maxMessagesPerSecond: 60
   logReceivedPackets: 1
   logEnqueuedReactions: 1
 --- !u!114 &2087166370
@@ -2347,6 +2350,9 @@ MonoBehaviour:
   path: /reaction/
   startOnEnable: 1
   maxMessagesPerFrame: 16
+  maxPayloadBytes: 8192
+  maxPendingMessages: 128
+  maxMessagesPerSecond: 60
   logReceivedPackets: 1
   logEnqueuedReactions: 1
   sendAcknowledgement: 1
@@ -2366,8 +2372,8 @@ MonoBehaviour:
   _closeOnPause: 0
   _mapBundle: {fileID: 0}
   _workInEditor: 0
-  _localHostMode: 0
-  _localHost: 
+  _localHostMode: 1
+  _localHost: 127.0.0.1
   _localPort: 9002
 --- !u!114 &2087166374
 MonoBehaviour:
@@ -2387,6 +2393,8 @@ MonoBehaviour:
   localPort: 9002
   startOnEnable: 1
   maxMessagesPerFrame: 16
+  maxPendingMessages: 128
+  maxMessagesPerSecond: 60
   defaultUser: OSCViewer
   defaultAmount: 0
   logReceivedPackets: 1

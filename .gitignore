@@ -75,3 +75,10 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local review captures and working notes.
+/allScreen.png
+/ProfilerCaptures/
+/.tmp_extOSC_upm_inspect/
+/VTuberControllerDemo_CheckPoint.md
+/VTuberDemo_Portfolio.md

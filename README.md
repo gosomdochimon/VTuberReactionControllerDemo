@@ -336,9 +336,9 @@ Python syntax check
 - `ReactionDefinition` 기반 VFX·표정·특수 연출 확인
 - `spark` 코드 수정 없는 데이터 확장 확인
 - Windows Standalone 빌드 생성 및 실행 확인
-- UDP receiver `0.0.0.0:9000` 시작 확인
+- UDP receiver `127.0.0.1:9000` 시작 확인 (로컬 전용)
 - WebSocket receiver `ws://127.0.0.1:9001/reaction/` 시작 확인
-- OSC receiver `0.0.0.0:9002` 시작 확인
+- OSC receiver `127.0.0.1:9002` 시작 확인 (로컬 전용)
 - Standalone에서 6개 반응의 수신·enqueue 확인
 - OBS Window Capture 확인
 - Overlay Mode 및 Chroma Key 적용 확인
@@ -354,5 +354,3 @@ Profiler 측정 기준과 시나리오는 문서화했습니다.
 - OBS 캡처 조건에서의 렌더링 비용
 
 현재 Profiler 자동 캡처 중 일부는 Play Mode가 아닌 상태에서 실행되어 실제 성능 수치가 아닌 도구 호출 확인값입니다. 따라서 확정적인 FPS 개선 수치는 제시하지 않고, 측정 기준과 후속 검증 항목으로 구분했습니다.
-
-상세 문서: [UnityTestFramework_Profiler_검증.md](Docs/UnityTestFramework_Profiler_검증.md), [UnityProfiler_사용설명서.md](Docs/UnityProfiler_사용설명서.md)

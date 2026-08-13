@@ -17,6 +17,8 @@ namespace VTuberReactionControllerDemo.Controller
         [SerializeField, Min(1)] private int localPort = 9002;
         [SerializeField] private bool startOnEnable = true;
         [SerializeField, Min(1)] private int maxMessagesPerFrame = 16;
+        [SerializeField, Min(1)] private int maxPendingMessages = 128;
+        [SerializeField, Min(1)] private int maxMessagesPerSecond = 60;
 
         [Header("Defaults")]
         [SerializeField] private string defaultUser = "OSCViewer";
@@ -29,6 +31,7 @@ namespace VTuberReactionControllerDemo.Controller
         private readonly Queue<ReactionEvent> pendingReactions = new Queue<ReactionEvent>();
         private readonly object pendingReactionsLock = new object();
         private readonly List<OSCBind> activeBinds = new List<OSCBind>();
+        private ReactionInputGuard inputGuard;
 
         public int PendingMessageCount
         {
@@ -54,6 +57,7 @@ namespace VTuberReactionControllerDemo.Controller
 
         private void Awake()
         {
+            EnsureInputGuard();
             EnsureReceiver();
             ConfigureReceiver();
             RebindReceiver();
@@ -67,6 +71,7 @@ namespace VTuberReactionControllerDemo.Controller
 
         private void OnEnable()
         {
+            EnsureInputGuard();
             EnsureReceiver();
             ConfigureReceiver();
             RebindReceiver();
@@ -105,7 +110,7 @@ namespace VTuberReactionControllerDemo.Controller
                 receiver.Connect();
             }
 
-            Debug.Log($"OSC reaction receiver started on 0.0.0.0:{localPort} with address mask {addressMask}.");
+            Debug.Log($"OSC reaction receiver started on 127.0.0.1:{localPort} with address mask {addressMask}.");
         }
 
         public void StopReceiver()
@@ -137,6 +142,8 @@ namespace VTuberReactionControllerDemo.Controller
             }
 
             receiver.AutoConnect = false;
+            receiver.LocalHostMode = OSCLocalHostMode.Custom;
+            receiver.LocalHost = "127.0.0.1";
             receiver.LocalPort = localPort;
         }
 
@@ -171,15 +178,26 @@ namespace VTuberReactionControllerDemo.Controller
                 return;
             }
 
+            if (!TryAcceptInput(out string guardFailureReason))
+            {
+                if (logReceivedPackets)
+                {
+                    Debug.LogWarning($"OSC reaction dropped: {guardFailureReason}.");
+                }
+
+                return;
+            }
+
             if (!TryCreateReactionEvent(message, out ReactionEvent reactionEvent, out string failureReason))
             {
-                Debug.LogWarning($"OSC reaction ignored: {failureReason} / {message}");
+                inputGuard.MarkDequeued();
+                Debug.LogWarning($"OSC reaction ignored: {failureReason}.");
                 return;
             }
 
             if (logReceivedPackets)
             {
-                Debug.Log($"OSC reaction received: {message.Address} -> {reactionEvent.Type}");
+                Debug.Log($"OSC reaction received: {reactionEvent.Type}.");
             }
 
             lock (pendingReactionsLock)
@@ -197,6 +215,7 @@ namespace VTuberReactionControllerDemo.Controller
                     return;
                 }
 
+                inputGuard.MarkDequeued();
                 EnqueueReaction(reactionEvent);
             }
         }
@@ -226,7 +245,7 @@ namespace VTuberReactionControllerDemo.Controller
 
             if (logEnqueuedReactions)
             {
-                Debug.Log($"OSC reaction enqueued: {reactionEvent.Type} / {reactionEvent.User} / {reactionEvent.Message}");
+                Debug.Log($"OSC reaction enqueued: {reactionEvent.Type}.");
             }
 
             controller.Enqueue(reactionEvent);
@@ -353,6 +372,25 @@ namespace VTuberReactionControllerDemo.Controller
             {
                 pendingReactions.Clear();
             }
+
+            inputGuard?.Reset();
+        }
+
+        private void EnsureInputGuard()
+        {
+            if (inputGuard == null)
+            {
+                inputGuard = new ReactionInputGuard(
+                    int.MaxValue,
+                    maxPendingMessages,
+                    maxMessagesPerSecond);
+            }
+        }
+
+        private bool TryAcceptInput(out string failureReason)
+        {
+            EnsureInputGuard();
+            return inputGuard.TryAccept(0, out failureReason);
         }
 
         private static string NormalizeAddressMask(string rawAddressMask)

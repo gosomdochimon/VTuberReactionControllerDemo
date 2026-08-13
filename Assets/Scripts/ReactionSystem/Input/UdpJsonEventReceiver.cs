@@ -15,10 +15,13 @@ namespace VTuberReactionControllerDemo.Controller
         [SerializeField] private ReactionController controller;
 
         [Header("UDP")]
-        [SerializeField] private string bindAddress = "0.0.0.0";
+        [SerializeField] private string bindAddress = "127.0.0.1";
         [SerializeField, Min(1)] private int port = 9000;
         [SerializeField] private bool startOnEnable = true;
         [SerializeField, Min(1)] private int maxMessagesPerFrame = 16;
+        [SerializeField, Min(256)] private int maxPayloadBytes = 8192;
+        [SerializeField, Min(1)] private int maxPendingMessages = 128;
+        [SerializeField, Min(1)] private int maxMessagesPerSecond = 60;
 
         [Header("Debug")]
         [SerializeField] private bool logReceivedPackets = true;
@@ -32,6 +35,7 @@ namespace VTuberReactionControllerDemo.Controller
         private UdpClient client;
         private Thread receiveThread;
         private volatile bool isRunning;
+        private ReactionInputGuard inputGuard;
 
         public int PendingMessageCount
         {
@@ -54,6 +58,8 @@ namespace VTuberReactionControllerDemo.Controller
 
         private void OnEnable()
         {
+            EnsureInputGuard();
+
             if (startOnEnable)
             {
                 StartReceiver();
@@ -137,9 +143,19 @@ namespace VTuberReactionControllerDemo.Controller
                     }
 
                     byte[] data = activeClient.Receive(ref remoteEndPoint);
+                    if (!TryAcceptInput(data.Length, out string failureReason))
+                    {
+                        EnqueueLog($"UDP JSON packet dropped: {failureReason}.");
+                        continue;
+                    }
+
                     string json = Encoding.UTF8.GetString(data);
-                    EnqueueJson(json);
-                    EnqueueLog($"UDP JSON received from {remoteEndPoint}: {json}");
+                    if (!EnqueueJson(json))
+                    {
+                        inputGuard.MarkDequeued();
+                    }
+
+                    EnqueueLog($"UDP JSON received ({data.Length} bytes).");
                 }
                 catch (ObjectDisposedException)
                 {
@@ -166,17 +182,19 @@ namespace VTuberReactionControllerDemo.Controller
             }
         }
 
-        private void EnqueueJson(string json)
+        private bool EnqueueJson(string json)
         {
             if (string.IsNullOrWhiteSpace(json))
             {
-                return;
+                return false;
             }
 
             lock (pendingJsonLock)
             {
                 pendingJsonMessages.Enqueue(json);
             }
+
+            return true;
         }
 
         private void FlushPendingMessages()
@@ -188,6 +206,7 @@ namespace VTuberReactionControllerDemo.Controller
                     return;
                 }
 
+                inputGuard.MarkDequeued();
                 EnqueueReaction(json);
             }
         }
@@ -217,13 +236,13 @@ namespace VTuberReactionControllerDemo.Controller
 
             if (!ReactionEventJsonMapper.TryFromJson(json, out ReactionEvent reactionEvent, out string failureReason))
             {
-                Debug.LogWarning($"UDP JSON ignored invalid reaction payload: {failureReason} / {json}");
+                Debug.LogWarning($"UDP JSON ignored invalid reaction payload: {failureReason}.");
                 return;
             }
 
             if (logEnqueuedReactions)
             {
-                Debug.Log($"UDP JSON enqueued reaction: {reactionEvent.Type} / {reactionEvent.User} / {reactionEvent.Message}");
+                Debug.Log($"UDP JSON enqueued reaction: {reactionEvent.Type}.");
             }
 
             controller.Enqueue(reactionEvent);
@@ -233,7 +252,7 @@ namespace VTuberReactionControllerDemo.Controller
         {
             if (string.IsNullOrWhiteSpace(bindAddress))
             {
-                return IPAddress.Any;
+                return IPAddress.Loopback;
             }
 
             if (IPAddress.TryParse(bindAddress, out IPAddress address))
@@ -241,8 +260,8 @@ namespace VTuberReactionControllerDemo.Controller
                 return address;
             }
 
-            Debug.LogWarning($"Invalid UDP bind address '{bindAddress}'. Falling back to 0.0.0.0.");
-            return IPAddress.Any;
+            Debug.LogWarning($"Invalid UDP bind address '{bindAddress}'. Falling back to 127.0.0.1.");
+            return IPAddress.Loopback;
         }
 
         private void EnqueueLog(string message)
@@ -292,6 +311,25 @@ namespace VTuberReactionControllerDemo.Controller
             {
                 pendingLogMessages.Clear();
             }
+
+            inputGuard?.Reset();
+        }
+
+        private void EnsureInputGuard()
+        {
+            if (inputGuard == null)
+            {
+                inputGuard = new ReactionInputGuard(
+                    maxPayloadBytes,
+                    maxPendingMessages,
+                    maxMessagesPerSecond);
+            }
+        }
+
+        private bool TryAcceptInput(int payloadBytes, out string failureReason)
+        {
+            EnsureInputGuard();
+            return inputGuard.TryAccept(payloadBytes, out failureReason);
         }
 
         private void DisposeClient()

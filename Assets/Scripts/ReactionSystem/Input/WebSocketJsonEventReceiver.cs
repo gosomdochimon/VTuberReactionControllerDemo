@@ -35,6 +35,9 @@ namespace VTuberReactionControllerDemo.Controller
         [SerializeField] private bool startOnEnable = true;
         // 한 프레임에 너무 많은 JSON을 처리하면 Unity 화면이 끊길 수 있으므로 프레임당 처리량을 제한합니다.
         [SerializeField, Min(1)] private int maxMessagesPerFrame = 16;
+        [SerializeField, Min(256)] private int maxPayloadBytes = 8192;
+        [SerializeField, Min(1)] private int maxPendingMessages = 128;
+        [SerializeField, Min(1)] private int maxMessagesPerSecond = 60;
 
         [Header("Debug")]
         [SerializeField] private bool logReceivedPackets = true;
@@ -53,6 +56,7 @@ namespace VTuberReactionControllerDemo.Controller
         private TcpListener listener;
         private Thread receiveThread;
         private volatile bool isRunning;
+        private ReactionInputGuard inputGuard;
 
         public int PendingMessageCount
         {
@@ -77,6 +81,8 @@ namespace VTuberReactionControllerDemo.Controller
 
         private void OnEnable()
         {
+            EnsureInputGuard();
+
             if (startOnEnable)
             {
                 StartReceiver();
@@ -212,7 +218,7 @@ namespace VTuberReactionControllerDemo.Controller
 
                 while (isRunning && client.Connected)
                 {
-                    WebSocketFrame frame = ReadFrame(stream);
+                    WebSocketFrame frame = ReadFrame(stream, maxPayloadBytes);
                     if (frame.Opcode == WebSocketOpcode.Close)
                     {
                         SendCloseFrame(stream);
@@ -237,8 +243,18 @@ namespace VTuberReactionControllerDemo.Controller
                         continue;
                     }
 
-                    EnqueueJson(message);
-                    EnqueueLog($"WebSocket JSON received: {message}");
+                    if (!TryAcceptInput(frame.Payload.Length, out string failureReason))
+                    {
+                        EnqueueLog($"WebSocket JSON message dropped: {failureReason}.");
+                        continue;
+                    }
+
+                    if (!EnqueueJson(message))
+                    {
+                        inputGuard.MarkDequeued();
+                    }
+
+                    EnqueueLog($"WebSocket JSON received ({frame.Payload.Length} bytes).");
 
                     if (sendAcknowledgement)
                     {
@@ -423,7 +439,7 @@ namespace VTuberReactionControllerDemo.Controller
             }
         }
 
-        private static WebSocketFrame ReadFrame(NetworkStream stream)
+        private static WebSocketFrame ReadFrame(NetworkStream stream, int maxPayloadBytes)
         {
             // handshake 이후 실제 데이터는 "프레임" 단위로 옵니다.
             // 첫 바이트는 메시지 종류(Text/Close/Ping 등), 두 번째 바이트는 마스크 여부와 payload 길이를 담습니다.
@@ -457,6 +473,11 @@ namespace VTuberReactionControllerDemo.Controller
                 }
 
                 payloadLength = BitConverter.ToUInt64(extended, 0);
+            }
+
+            if (payloadLength > (ulong)Math.Max(1, maxPayloadBytes))
+            {
+                throw new InvalidDataException($"WebSocket payload exceeds {maxPayloadBytes} bytes.");
             }
 
             byte[] mask = masked ? ReadExact(stream, 4) : null;
@@ -558,11 +579,11 @@ namespace VTuberReactionControllerDemo.Controller
             stream.Write(body, 0, body.Length);
         }
 
-        private void EnqueueJson(string json)
+        private bool EnqueueJson(string json)
         {
             if (string.IsNullOrWhiteSpace(json))
             {
-                return;
+                return false;
             }
 
             // 수신 스레드와 Unity 메인 스레드가 같은 큐를 만지므로 lock으로 동시에 수정되는 상황을 막습니다.
@@ -570,6 +591,8 @@ namespace VTuberReactionControllerDemo.Controller
             {
                 pendingJsonMessages.Enqueue(json);
             }
+
+            return true;
         }
 
         private void FlushPendingMessages()
@@ -582,6 +605,7 @@ namespace VTuberReactionControllerDemo.Controller
                     return;
                 }
 
+                inputGuard.MarkDequeued();
                 EnqueueReaction(json);
             }
         }
@@ -611,13 +635,13 @@ namespace VTuberReactionControllerDemo.Controller
 
             if (!ReactionEventJsonMapper.TryFromJson(json, out ReactionEvent reactionEvent, out string failureReason))
             {
-                Debug.LogWarning($"WebSocket JSON ignored invalid reaction payload: {failureReason} / {json}");
+                Debug.LogWarning($"WebSocket JSON ignored invalid reaction payload: {failureReason}.");
                 return;
             }
 
             if (logEnqueuedReactions)
             {
-                Debug.Log($"WebSocket JSON enqueued reaction: {reactionEvent.Type} / {reactionEvent.User} / {reactionEvent.Message}");
+                Debug.Log($"WebSocket JSON enqueued reaction: {reactionEvent.Type}.");
             }
 
             controller.Enqueue(reactionEvent);
@@ -688,6 +712,25 @@ namespace VTuberReactionControllerDemo.Controller
             {
                 pendingLogMessages.Clear();
             }
+
+            inputGuard?.Reset();
+        }
+
+        private void EnsureInputGuard()
+        {
+            if (inputGuard == null)
+            {
+                inputGuard = new ReactionInputGuard(
+                    maxPayloadBytes,
+                    maxPendingMessages,
+                    maxMessagesPerSecond);
+            }
+        }
+
+        private bool TryAcceptInput(int payloadBytes, out string failureReason)
+        {
+            EnsureInputGuard();
+            return inputGuard.TryAccept(payloadBytes, out failureReason);
         }
 
         private static string NormalizePath(string rawPath)
